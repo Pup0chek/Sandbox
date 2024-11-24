@@ -1,5 +1,17 @@
+import base64
+
+from core.VirusTotalAPI import Upload_file, Get_File_Info
+from base64 import decode
 
 
 
-API_KEY = "244b0f6ee69d1669c9c21135a08da07243d3003790c28b264d52967e01f0f1d9"
 
+def main():
+        id = Upload_file("test.txt").get("id")
+        decoded = base64.b64decode(id).decode('utf-8')
+        splited = decoded.split(":")
+        print(Get_File_Info(splited[0]))
+
+
+if __name__ == "__main__":
+    main()
