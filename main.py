@@ -1,7 +1,7 @@
 import base64
 
 from core.VirusTotalAPI import Upload_file, Get_File_Info
-from base64 import decode
+
 
 
 
