@@ -1,6 +1,6 @@
 import base64
 
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 from core.VirusTotalAPI import Upload_file, Get_File_Info
 
 app = Flask(__name__)
