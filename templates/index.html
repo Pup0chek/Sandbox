@@ -1,13 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}
+Main Page
+{% endblock %}
+
+{% block body %}
 <p>
-    Информация о файле:
-    {{ message }}
+    Информация о файле:<br>
+    id: {{ message[0]['data']['id'] }}<br>
+    result : {{ message[1] }}<br>
+    type: {{ message[0]['data']['attributes']['type_extension'] }}<br>
+    size: {{ message[0]['data']['attributes']['size'] }}<br>
+    reputation: {{ message[0]['data']['attributes']['reputation'] }}<br>
 </p>
-</body>
-</html>
+{% endblock %}

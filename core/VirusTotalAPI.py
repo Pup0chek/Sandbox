@@ -1,8 +1,12 @@
+import os
+
 import requests
+import os
 
-API_KEY = "244b0f6ee69d1669c9c21135a08da07243d3003790c28b264d52967e01f0f1d9"
-API_URL = "https://www.virustotal.com/api/v3"
+API_KEY = os.getenv("API_KEY")
+API_URL = os.getenv('API_URL')
 
+print(API_URL)
 
 def Upload_file(file):
     with open(file, 'rb') as f:
