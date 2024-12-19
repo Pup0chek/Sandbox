@@ -1,16 +1,9 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Main Page
+INDEX
 {% endblock %}
 
 {% block body %}
-<p>
-    Информация о файле:<br>
-    id: {{ message[0]['data']['id'] }}<br>
-    result : {{ message[1] }}<br>
-    type: {{ message[0]['data']['attributes']['type_extension'] }}<br>
-    size: {{ message[0]['data']['attributes']['size'] }}<br>
-    reputation: {{ message[0]['data']['attributes']['reputation'] }}<br>
-</p>
+<h1>MAIN</h1>
 {% endblock %}
