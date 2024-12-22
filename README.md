@@ -36,3 +36,8 @@
    ```bash
    git clone https://github.com/yourusername/malware-analysis-sandbox.git
    cd malware-analysis-sandbox
+
+-------------
+TODO:
+- логирование
+- тестирование
