@@ -1,7 +1,6 @@
 import base64
 from flask import Flask, render_template, request, redirect, url_for
-
-import config
+from db.connection import get_db_connection
 from core.VirusTotalAPI import Upload_file, Get_File_Info
 from wtf.forms import MessageForm
 import os
@@ -12,6 +11,7 @@ load_dotenv()
 app = Flask(__name__)
 # app.config.from_object(config)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or os.urandom(24)
+
 MAX_FILE_SIZE = 1024 * 1024 + 1
 
 
@@ -52,14 +52,44 @@ def index():
 @app.route('/upload/', methods=['POST', 'GET'])
 def upload():
     message = {"method": "GET"}
+
     if request.method == "POST":
-        file = request.files["file"]
-        if bool(file.filename):
-            file_bytes = file.read(MAX_FILE_SIZE)
-            message["file_size_error"] = len(file_bytes) == MAX_FILE_SIZE
-        message["method"] = "POST"
-        # return render_template("file_info.html", args=args)
-        message = [{'data': {'id': ' ', 'attributes': {'type_extension': ' ', 'size': ' ', 'reputation': ' '}}}, "True"]
+        file = request.files.get("file")
+
+        if not file or not file.filename:
+            message["error"] = "Файл не выбран!"
+            return render_template("upload.html", message=message)
+
+        # Читаем файл
+        file_bytes = file.read(MAX_FILE_SIZE + 1)
+        if len(file_bytes) > MAX_FILE_SIZE:
+            message["file_size_error"] = True
+            return render_template("upload.html", message=message)
+
+        # Сохраняем файл во временное хранилище (например, на сервер)
+        temp_path = f"C:\\Sandbox\\tmp\\{file.filename}"
+        with open(temp_path, 'wb') as temp_file:
+            temp_file.write(file_bytes)
+
+        # Загружаем файл на API
+        try:
+            api_response = Upload_file(temp_path)
+            if api_response.get("message") == "success":
+                message = {
+                    "method": "POST",
+                    "file_info": api_response.get("id"),
+                }
+                id = api_response.get("id")
+                decoded = base64.b64decode(id).decode('utf-8')
+                print(decoded)
+                splited = decoded.split(":")
+                message = [Get_File_Info(splited[0]), "True"]
+                return render_template('file_info.html', message=message)
+            else:
+                message["error"] = "Ошибка загрузки на API"
+        except Exception as e:
+            message["error"] = f"Произошла ошибка: {e}"
+
         return render_template('file_info.html', message=message)
     return render_template("upload.html", message=message)
 
