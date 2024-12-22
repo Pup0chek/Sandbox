@@ -1,0 +1,229 @@
+import requests
+from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, Date
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from datetime import datetime
+import matplotlib.pyplot as plt
+import sys
+import math
+
+Base = declarative_base()
+
+
+class Place(Base):
+    __tablename__ = 'places'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+    country = Column(String, nullable=False)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+
+    weather_params = relationship('WeatherParam', back_populates='place')
+
+
+class WeatherParam(Base):
+    __tablename__ = 'weather_params'
+    id = Column(Integer, primary_key=True)
+    place_id = Column(Integer, ForeignKey('places.id'), nullable=False)
+    date = Column(Date, nullable=False)
+    temperature_max = Column(Float)
+    temperature_min = Column(Float)
+    precipitation_sum = Column(Float)
+
+    place = relationship('Place', back_populates='weather_params')
+
+
+engine = create_engine('sqlite:///weather.sqlite3', echo=False)
+Base.metadata.create_all(bind=engine)
+Session = sessionmaker(bind=engine)
+
+
+def get_coordinates(place_name, country):
+    url = "https://geocoding-api.open-meteo.com/v1/search"
+    params = {
+        'name': place_name,
+        'count': 1,
+        'language': 'en',
+        'format': 'json',
+        'country': country
+    }
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Ошибка при запросе координат для {place_name}, {country}: {e}")
+        sys.exit(1)
+
+    data = response.json()
+    if 'results' in data and len(data['results']) > 0:
+        return data['results'][0]['latitude'], data['results'][0]['longitude']
+    else:
+        raise ValueError(f"Координаты для {place_name}, {country} не найдены.")
+
+
+def get_historical_weather(lat, lon, start_date, end_date,
+                           params=['temperature_2m_max', 'temperature_2m_min', 'precipitation_sum']):
+    url = "https://archive-api.open-meteo.com/v1/archive"
+    payload = {
+        'latitude': lat,
+        'longitude': lon,
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d'),
+        'daily': params,
+        'timezone': 'UTC'
+    }
+    try:
+        response = requests.get(url, params=payload)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Ошибка при запросе погодных данных: {e}")
+        return None
+
+    data = response.json()
+    return data
+
+
+def populate_database(session, place_name, country, start_date, end_date):
+    try:
+        latitude, longitude = get_coordinates(place_name, country)
+        print(f"Координаты для {place_name}: Широта {latitude}, Долгота {longitude}")
+    except ValueError as ve:
+        print(ve)
+        return
+
+    existing_place = session.query(Place).filter(Place.name == place_name).first()
+    if existing_place:
+        print(f"Населённый пункт {place_name} уже существует в базе данных.")
+        place = existing_place
+    else:
+        place = Place(name=place_name, country=country, latitude=latitude, longitude=longitude)
+        session.add(place)
+        session.commit()
+        print(f"Добавлен населённый пункт: {place_name}, {country}")
+
+    weather_data = get_historical_weather(latitude, longitude, start_date, end_date)
+
+    if not weather_data:
+        print(f"Не удалось получить погодные данные для {place_name}.")
+        return
+
+    if 'daily' not in weather_data:
+        print(f"Погодные данные для {place_name} отсутствуют.")
+        print("Ответ API:", weather_data)
+        return
+
+    dates = weather_data['daily'].get('time', [])
+    temperatures_max = weather_data['daily'].get('temperature_2m_max', [])
+    temperatures_min = weather_data['daily'].get('temperature_2m_min', [])
+    precipitation_sums = weather_data['daily'].get('precipitation_sum', [])
+
+    if not (len(dates) == len(temperatures_max) == len(temperatures_min) == len(precipitation_sums)):
+        print(f"Несоответствие длины данных для {place_name}.")
+        return
+
+    added_records = 0
+    for date_str, temp_max, temp_min, precip in zip(dates, temperatures_max, temperatures_min, precipitation_sums):
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+        existing_weather = session.query(WeatherParam).filter(
+            WeatherParam.place_id == place.id,
+            WeatherParam.date == date_obj
+        ).first()
+
+        if existing_weather:
+            existing_weather.temperature_max = temp_max
+            existing_weather.temperature_min = temp_min
+            existing_weather.precipitation_sum = precip
+        else:
+            weather = WeatherParam(
+                place_id=place.id,
+                date=date_obj,
+                temperature_max=temp_max,
+                temperature_min=temp_min,
+                precipitation_sum=precip
+            )
+            session.add(weather)
+            added_records += 1
+
+    session.commit()
+    print(f"Погодные данные для {place_name} успешно добавлены/обновлены. Добавлено записей: {added_records}")
+
+
+def plot_all_weather(session, places, params):
+    num_places = len(places)
+    num_params = len(params)
+
+    cols = num_params
+    rows = num_places
+
+    fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 4 * rows), squeeze=False)
+    fig.tight_layout(pad=5.0)
+
+    for row_idx, place in enumerate(places):
+        for col_idx, param in enumerate(params):
+            ax = axes[row_idx][col_idx]
+
+            data = session.query(WeatherParam).filter(WeatherParam.place_id == place.id).order_by(WeatherParam.date).all()
+
+            if not data:
+                ax.set_title(f"Нет данных для {place.name}")
+                ax.axis('off')
+                continue
+
+            dates = [record.date for record in data]
+
+            if param == 'temperature_max':
+                values = [record.temperature_max for record in data]
+                ylabel = 'Максимальная температура (°C)'
+                title = f'Максимальная температура в {place.name}'
+            elif param == 'temperature_min':
+                values = [record.temperature_min for record in data]
+                ylabel = 'Минимальная температура (°C)'
+                title = f'Минимальная температура в {place.name}'
+            elif param == 'precipitation_sum':
+                values = [record.precipitation_sum for record in data]
+                ylabel = 'Осадки (мм)'
+                title = f'Осадки в {place.name}'
+            else:
+                values = []
+                ylabel = ''
+                title = ''
+
+            if values:
+                ax.plot(dates, values, label=param.replace('_', ' ').capitalize(), color='b')
+                ax.set_title(title)
+                ax.set_xlabel('Дата')
+                ax.set_ylabel(ylabel)
+                ax.legend()
+                ax.grid(True)
+            else:
+                ax.set_title("Неизвестный параметр")
+                ax.axis('off')
+
+    plt.show()
+
+
+if __name__ == "__main__":
+    places_info = [
+        {'name': 'Казань', 'country': 'Russia'},
+        {'name': 'Cape Town', 'country': 'South Africa'},
+        {'name': 'Sydney', 'country': 'Australia'}
+    ]
+
+    start_date = datetime(2023, 1, 1)
+    end_date = datetime(2023, 12, 31)
+
+    session = Session()
+
+    places = []
+
+    for place in places_info:
+        populate_database(session, place['name'], place['country'], start_date, end_date)
+        existing_place = session.query(Place).filter(Place.name == place['name']).first()
+        if existing_place:
+            places.append(existing_place)
+
+    params = ['temperature_max', 'temperature_min', 'precipitation_sum']
+
+    plot_all_weather(session, places, params)
+
+    session.close()

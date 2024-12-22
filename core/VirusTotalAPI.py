@@ -6,7 +6,7 @@ import os
 API_KEY = os.getenv("API_KEY")
 API_URL = os.getenv('API_URL')
 
-print(API_URL)
+
 
 def Upload_file(file_path):
     with open(file_path, 'rb') as file:
@@ -30,3 +30,6 @@ def Upload_file(file_path):
 def Get_File_Info(id : str):
     response = requests.get(url=f"{API_URL}/files/{id}", headers={"x-apikey": f"{API_KEY}"})
     return response.json()
+
+#print(Upload_file("C:\\Users\\User\\Downloads\\Итоговое задание.pdf"))
+print(Get_File_Info("d03cd054cf4c9f3ef860f5d7f2a0ebc4"))
