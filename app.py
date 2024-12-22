@@ -4,13 +4,16 @@ from db.connection import get_db_connection
 from core.VirusTotalAPI import Upload_file, Get_File_Info
 from wtf.forms import MessageForm
 import os
+from blueprints.auth import auth
 from dotenv import load_dotenv
 load_dotenv()
 
 
 app = Flask(__name__)
-# app.config.from_object(config)
+
+app.register_blueprint(auth, url_prefix='/login')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or os.urandom(24)
+
 
 MAX_FILE_SIZE = 1024 * 1024 + 1
 
@@ -45,19 +48,8 @@ def lol():
         return redirect(url_for('lol'))
     return render_template('message.html', form=form)
 
-users = {"admin": "password123"}
-@app.route("/login/", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        if username in users and users[username] == password:
-            session["username"] = username
-            flash("Вы успешно вошли!", "success")
-            return redirect(url_for("upload"))
-        else:
-            flash("Неправильное имя пользователя или пароль.", "danger")
-    return render_template("login.html")
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -106,15 +98,23 @@ def upload():
         return render_template('file_info.html', message=message)
     return render_template("upload.html", message=message)
 
-@app.route('/new/')
-def render_new():
-    return render_template('new.html')
-
-# @app.route('/<int:num>/')
-# def lol(num: int):
-#     return {"message": f"{num*2}"}
 
 
+
+
+# users = {"admin": "password123"}
+# @app.route("/login/", methods=["GET", "POST"])
+# def login():
+#     if request.method == "POST":
+#         username = request.form.get("username")
+#         password = request.form.get("password")
+#         if username in users and users[username] == password:
+#             session["username"] = username
+#             flash("Вы успешно вошли!", "success")
+#             return redirect(url_for("upload"))
+#         else:
+#             flash("Неправильное имя пользователя или пароль.", "danger")
+#     return render_template("login.html")
 
 app.run(debug=True)
 

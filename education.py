@@ -1,24 +1,24 @@
-def snail(array):
-    ans = []
-    while array:
-        ans.extend(array.pop(0))
 
-        if array:
-            for i in array:
-                ans.append(i.pop())
-        if array:
-            ans.extend(array.pop()[::-1])
-        if array:
-            for i in array[::-1]:
-                ans.append(i.pop(0))
-    return ans
 
 
 def main():
-    array = [[1, 2, 3],
-             [4, 5, 6],
-             [7, 8, 9]]
-    print(snail(array))#=> [1,2,3,6,9,8,7,4,5])
+    int1 = 16
+    ans = 1
+    for i in range(1, int1+1):
+        ans *= i
+    ans1 = str(ans)
+    print(ans1)
+    print(ans1[:-1])
+    if ans1[-1] == '0':
+        cnt = 1
+        ans1 = ans1[:-1]
+        while ans1[-1] == '0':
+            cnt += 1
+            ans1 = ans1[:-1]
+        # for i in range(1, len(ans1)+1):
+        #     if
+        #     print(ans1[-i])
+    print(cnt)
 
 
 
