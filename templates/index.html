@@ -1,9 +1,52 @@
 {% extends 'base.html' %}
 
 {% block title %}
-INDEX
+Добро пожаловать
 {% endblock %}
 
 {% block body %}
-<h1>MAIN</h1>
+<div class="container mt-5">
+    <div class="jumbotron bg-light p-5 rounded shadow">
+        <h1 class="display-4 text-primary">Добро пожаловать в приложение VirusTotal Scanner!</h1>
+        <p class="lead">
+            Это приложение создано для изучения работы Flask и предоставляет следующие возможности:
+        </p>
+        <hr class="my-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Загрузка файлов</h5>
+                        <p class="card-text">Пользователь может загружать файлы для анализа.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Анализ угроз</h5>
+                        <p class="card-text">Каждый файл отправляется на VirusTotal API для проверки на вредоносное содержание.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Детальная информация</h5>
+                        <p class="card-text">Результаты анализа отображаются с указанием репутации файла и степени угрозы.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <h5><strong>Дополнительные функции:</strong></h5>
+            <ul>
+                <li>Сканирование URL-адресов для анализа их безопасности.</li>
+                <li>Генерация подробных отчетов о безопасности файлов.</li>
+                <li>Визуализация статистики и трендов по загруженным файлам.</li>
+            </ul>
+            <a class="btn btn-primary btn-lg" href="/upload" role="button">Начать</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

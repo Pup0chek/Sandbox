@@ -1,22 +1,38 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Upload File
+Загрузка файла
 {% endblock %}
 
 {% block body %}
-<p>
-    Загрузить файл<br>
-    {% if message["method"] == "POST" %}
-        {% if message["file_size_error"] %}
-            <h1>Размер файла превышает 1мб.!</h1>
-        {% else %}
-            <h1>Файл успешно загружен.</h1>
-        {% endif %}
-    {% endif %}
-    <form action="/upload/" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <button type="submit">Загрузить</button>
-    </form>
-</p>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <div class="card-body">
+            <h1 class="card-title text-primary">Загрузить файл</h1>
+            <p class="card-text">
+                Вы можете загрузить файл для проверки его безопасности с помощью VirusTotal API.
+            </p>
+
+            {% if message["method"] == "POST" %}
+                {% if message["file_size_error"] %}
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Ошибка:</strong> Размер файла превышает 1 МБ!
+                    </div>
+                {% else %}
+                    <div class="alert alert-success" role="alert">
+                        Файл успешно загружен и отправлен на проверку.
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <form action="/upload/" method="POST" enctype="multipart/form-data" class="mt-4">
+                <div class="mb-3">
+                    <label for="file" class="form-label">Выберите файл для загрузки:</label>
+                    <input type="file" class="form-control" id="file" name="file" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Загрузить</button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

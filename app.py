@@ -1,5 +1,5 @@
 import base64
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, session, flash
 from db.connection import get_db_connection
 from core.VirusTotalAPI import Upload_file, Get_File_Info
 from wtf.forms import MessageForm
@@ -45,6 +45,19 @@ def lol():
         return redirect(url_for('lol'))
     return render_template('message.html', form=form)
 
+users = {"admin": "password123"}
+@app.route("/login/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username in users and users[username] == password:
+            session["username"] = username
+            flash("Вы успешно вошли!", "success")
+            return redirect(url_for("upload"))
+        else:
+            flash("Неправильное имя пользователя или пароль.", "danger")
+    return render_template("login.html")
 @app.route('/')
 def index():
     return render_template('index.html')
