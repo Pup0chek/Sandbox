@@ -34,8 +34,8 @@
 
 1. Склонируйте репозиторий:
    ```bash
-   git clone https://github.com/yourusername/malware-analysis-sandbox.git
-   cd malware-analysis-sandbox
+   git clone https://github.com/Pup0chek/Sandbox.git
+   cd Sandbox
 
 -------------
 TODO:
