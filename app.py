@@ -8,9 +8,12 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
 app = Flask(__name__)
 # app.config.from_object(config)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or os.urandom(24)
+MAX_FILE_SIZE = 1024 * 1024 + 1
+
 
 
 #функция представления
@@ -45,6 +48,20 @@ def lol():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/upload/', methods=['POST', 'GET'])
+def upload():
+    message = {"method": "GET"}
+    if request.method == "POST":
+        file = request.files["file"]
+        if bool(file.filename):
+            file_bytes = file.read(MAX_FILE_SIZE)
+            message["file_size_error"] = len(file_bytes) == MAX_FILE_SIZE
+        message["method"] = "POST"
+        # return render_template("file_info.html", args=args)
+        message = [{'data': {'id': ' ', 'attributes': {'type_extension': ' ', 'size': ' ', 'reputation': ' '}}}, "True"]
+        return render_template('file_info.html', message=message)
+    return render_template("upload.html", message=message)
 
 @app.route('/new/')
 def render_new():

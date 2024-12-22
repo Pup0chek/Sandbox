@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Upload File
+{% endblock %}
+
+{% block body %}
+<p>
+    Загрузить файл<br>
+    {% if message["method"] == "POST" %}
+        {% if message["file_size_error"] %}
+            <h1>Размер файла превышает 1мб.!</h1>
+        {% else %}
+            <h1>Файл успешно загружен.</h1>
+        {% endif %}
+    {% endif %}
+    <form action="/upload/" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Загрузить</button>
+    </form>
+</p>
+{% endblock %}
