@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 
-# Создаем Blueprint
+
 auth = Blueprint('auth', __name__, template_folder='templates')
 
 users = {"admin": "password123"}
