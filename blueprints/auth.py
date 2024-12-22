@@ -17,3 +17,9 @@ def login():
         else:
             flash("Неправильное имя пользователя или пароль.", "danger")
     return render_template("login.html")
+
+@auth.route("/logout/")
+def logout():
+    session.pop("username", None)
+    flash("Вы вышли из системы.", "info")
+    return redirect(url_for("index"))

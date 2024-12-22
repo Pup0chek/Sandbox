@@ -1,6 +1,5 @@
 import base64
 from flask import Flask, request, render_template, redirect, url_for, session, flash
-from db.connection import get_db_connection
 from core.VirusTotalAPI import Upload_file, Get_File_Info
 from wtf.forms import MessageForm
 import os
@@ -16,6 +15,10 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or os.urandom(24)
 
 
 MAX_FILE_SIZE = 1024 * 1024 + 1
+
+
+from functools import wraps
+from flask import redirect, url_for, session, flash
 
 
 
@@ -54,26 +57,6 @@ def lol():
 def index():
     return render_template('index.html')
 
-users = {'admin':'password'}
-@app.route("/login/", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        if username in users and users[username] == password:
-            session["username"] = username
-            flash("Вы успешно вошли!", "success")
-            return redirect(url_for("upload"))
-        else:
-            flash("Неправильное имя пользователя или пароль.", "danger")
-    return render_template("login.html")
-
-
-@app.route("/logout/")
-def logout():
-    session.pop("username", None)
-    flash("Вы вышли из системы.", "info")
-    return redirect(url_for("index"))
 
 
 @app.route('/upload/', methods=['POST', 'GET'])
@@ -81,7 +64,7 @@ def upload():
     # Проверяем, авторизован ли пользователь
     if "username" not in session:
         flash("Вы должны авторизоваться или зарегистрироваться, чтобы загрузить файл.", "warning")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     message = {"method": "GET"}
 
@@ -124,18 +107,6 @@ def upload():
             flash(f"Произошла ошибка: {e}", "danger")
 
     return render_template("upload.html", message=message)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
