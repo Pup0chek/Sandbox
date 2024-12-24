@@ -38,8 +38,10 @@ def register():
             if confirm_password == password:
                     flash("Вы успешно зарегистрировались!", "success")
                     return redirect("/")
-            flash("Пароли не сходятся!", "danger")
-        flash("Пользователь с таким именем уже есть!", "danger")
+            else:
+                flash("Пароли не сходятся!", "danger")
+        else:
+            flash("Пользователь с таким именем уже есть!", "danger")
 
 
     return render_template("register.html")
