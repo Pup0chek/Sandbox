@@ -4,15 +4,15 @@ from core.VirusTotalAPI import Upload_file, Get_File_Info
 from wtf.forms import MessageForm
 import os
 from blueprints.auth import auth
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 
 app = Flask(__name__)
 
 app.register_blueprint(auth, url_prefix='/login')
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or os.urandom(24)
-
+# app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or os.urandom(24)
+app.config['SECRET_KEY'] = "123"
 
 MAX_FILE_SIZE = 1024 * 1024 + 1
 
@@ -84,7 +84,7 @@ def upload():
             return render_template("upload.html", message=message)
 
         # Сохраняем файл временно
-        temp_path = f"C:\\Sandbox\\tmp\\{file.filename}"
+        temp_path = f"tmp\\{file.filename}"
         with open(temp_path, 'wb') as temp_file:
             temp_file.write(file_bytes)
 

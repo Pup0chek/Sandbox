@@ -3,15 +3,16 @@ import os
 import requests
 import os
 
-API_KEY = os.getenv("API_KEY")
-API_URL = os.getenv('API_URL')
+# API_KEY = os.getenv("API_KEY")
+# API_URL = os.getenv('API_URL')
 
-
+API_KEY = '244b0f6ee69d1669c9c21135a08da07243d3003790c28b264d52967e01f0f1d9'
+API_URL = ' https://www.virustotal.com/api/v3'
 
 def Upload_file(file_path):
     with open(file_path, 'rb') as file:
         files = {"file": file}  # Открытый файл передается напрямую
-        headers = {"x-apikey": API_KEY}
+        headers = {"X-Apikey": API_KEY}
         response = requests.post(f"{API_URL}/files", files=files, headers=headers)
 
         if response.status_code == 200:
@@ -32,4 +33,4 @@ def Get_File_Info(id : str):
     return response.json()
 
 #print(Upload_file("C:\\Users\\User\\Downloads\\Итоговое задание.pdf"))
-print(Get_File_Info("d03cd054cf4c9f3ef860f5d7f2a0ebc4"))
+#print(Get_File_Info("d03cd054cf4c9f3ef860f5d7f2a0ebc4"))
