@@ -34,7 +34,7 @@ def register():
         confirm_password = request.form.get("confirm_password")
         if username not in users:
             users[username] = password
-            session["username"] = username
+            session[username] = username
             if confirm_password == password:
                     flash("Вы успешно зарегистрировались!", "success")
                     return redirect("/")

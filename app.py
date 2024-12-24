@@ -1,11 +1,9 @@
-import base64
-from flask import Flask, request, render_template, redirect, url_for, session, flash
-from core.VirusTotalAPI import Upload_file, Get_File_Info
+from flask import Flask, render_template
 from wtf.forms import MessageForm
-import os
 from blueprints.auth import auth
 from blueprints.file import file
 from blueprints.url import url
+from flask import redirect, url_for
 # from dotenv import load_dotenv
 # load_dotenv()
 
@@ -21,14 +19,21 @@ app.config['SECRET_KEY'] = "123"
 
 
 
-from functools import wraps
-from flask import redirect, url_for, session, flash
 
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+
+@app.route('/reports', methods=['get'])
+def get_report():
+    return render_template('reports,html')
 
 
 #функция представления
-
-
 @app.route('/lol/', methods=["GET", "POST"])
 def lol():
     form = MessageForm()
@@ -43,16 +48,6 @@ def lol():
         print("---------------")
         return redirect(url_for('lol'))
     return render_template('message.html', form=form)
-
-
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-
-
-
 
 
 

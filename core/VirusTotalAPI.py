@@ -11,6 +11,7 @@ API_URL = ' https://www.virustotal.com/api/v3'
 headers = {"X-Apikey": API_KEY}
 
 def Upload_file(file_path):
+    print(file_path[4:])
     with open(file_path, 'rb') as file:
         files = {"file": file}  # Открытый файл передается напрямую
 
@@ -18,8 +19,10 @@ def Upload_file(file_path):
 
         if response.status_code == 200:
             # Извлекаем ID файла из JSON-ответа
+
             response_json = response.json()
             file_id = response_json.get('data', {}).get('id')
+            print(create_report(file_path, response_json))
             return {"message": "success", "id": file_id}
         else:
             # Возвращаем ошибку с кодом и текстом
@@ -36,7 +39,19 @@ def Get_File_Info(id : str):
 def Check_url(url:str):
     payload = {"url": url}
     response = requests.post(f"{API_URL}/urls", headers=headers, data=payload)
-    return response.text
+    return response.json()
+
+def Get_URL_Info(id: str):
+    response = requests.get(url=f"{API_URL}/urls/{id}", headers=headers)
+    return response.json()
+
+def create_report(file_path, response_json):
+    path = file_path[4:].split('.')[0] + ".txt"
+    print(response_json)
+    with open(f'reports\\{path}', 'wb') as fi:
+        fi.write(response_json)
+        fi.close()
+    return True
 
 #print(Upload_file("C:\\Users\\User\\Downloads\\Итоговое задание.pdf"))
 #print(Get_File_Info("d03cd054cf4c9f3ef860f5d7f2a0ebc4"))

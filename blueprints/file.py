@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import base64
 from flask import Flask, request, render_template, redirect, url_for, session, flash
-from core.VirusTotalAPI import Upload_file, Get_File_Info
+from core.VirusTotalAPI import Upload_file, Get_File_Info, create_report
 from wtf.forms import MessageForm
 import os
 from blueprints.auth import auth
@@ -22,6 +22,7 @@ def file_info(path:str='C:\\Sandbox\\test.txt'):
     elif request.method == 'GET':
         message = [{'data':{'id': ' ', 'attributes': {'type_extension':' ', 'size':' ', 'reputation':' '}}}, "True"]
         return render_template('file_info.html', message=message)
+
 
 @file.route('/upload/', methods=['POST', 'GET'])
 def upload():
@@ -60,7 +61,6 @@ def upload():
                 decoded = base64.b64decode(id).decode('utf-8')
                 splited = decoded.split(":")
                 message = [Get_File_Info(splited[0]), "True"]
-
                 flash("Файл успешно загружен!", "success")
                 return render_template('file_info.html', message=message)
             else:

@@ -1,6 +1,6 @@
 from celery.bin.result import result
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from core.VirusTotalAPI import Check_url
+from core.VirusTotalAPI import Check_url, Get_URL_Info
 
 
 url = Blueprint('url', __name__, template_folder='templates')
@@ -16,8 +16,13 @@ def url_check():
     }
     if request.method == "POST":
         message['method'] = "POST"
-        result = Check_url(request.form.get("url"))
-        message['body'] = result
+        l = Check_url(request.form.get("url"))
+        id = Check_url(request.form.get("url"))['data']['id']
+        print(l)
+        print(id)
+        result = Get_URL_Info(id)
         print(result)
+        message['body'] = result
+
         return render_template('URL.html', message=message)
     return render_template('URL.html', message=message)
