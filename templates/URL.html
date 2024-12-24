@@ -1,7 +1,27 @@
-{% extends base.html %}}
-{% block title %}
-Проверка URL
-{% endblock %}
-{% block body %}
+{% extends 'base.html' %}
 
+{% block title %}
+Загрузка файла
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <div class="card-body">
+            <h1 class="card-title text-primary">Ввести URL</h1>
+            <p class="card-text">
+                Вы можете ввести URL для проверки его безопасности с помощью VirusTotal API.
+            </p>
+
+            <form action="/url/url_check/" method="POST" enctype="multipart/form-data" class="mt-4">
+                <div class="mb-3">
+                    <label for="url" class="form-label">Введите URL для проверки:</label>
+                    <input type="text" class="form-control" id="url" name="url" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Проверить</button>
+            </form>
+            <p>{{ message['body'] }}</p>
+        </div>
+    </div>
+</div>
 {% endblock %}

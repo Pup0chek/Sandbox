@@ -5,6 +5,7 @@ from wtf.forms import MessageForm
 import os
 from blueprints.auth import auth
 from blueprints.file import file
+from blueprints.url import url
 # from dotenv import load_dotenv
 # load_dotenv()
 
@@ -13,6 +14,7 @@ app = Flask(__name__)
 
 app.register_blueprint(auth, url_prefix='/login')
 app.register_blueprint(file, url_prefix='/file')
+app.register_blueprint(url, url_prefix= '/url')
 # app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or os.urandom(24)
 app.config['SECRET_KEY'] = "123"
 

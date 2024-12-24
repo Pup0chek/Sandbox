@@ -13,7 +13,7 @@ def login():
         if username in users and users[username] == password:
             session["username"] = username
             flash("Вы успешно вошли!", "success")
-            return redirect("/file/upload")
+            return redirect("/")
         else:
             flash("Неправильное имя пользователя или пароль.", "danger")
     return render_template("login.html")
