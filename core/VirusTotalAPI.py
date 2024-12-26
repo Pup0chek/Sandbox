@@ -22,7 +22,7 @@ def Upload_file(file_path):
 
             response_json = response.json()
             file_id = response_json.get('data', {}).get('id')
-            print(create_report(file_path, response_json))
+            #print(create_report(file_path, response_json))
             return {"message": "success", "id": file_id}
         else:
             # Возвращаем ошибку с кодом и текстом

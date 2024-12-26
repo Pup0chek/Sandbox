@@ -13,6 +13,17 @@
                 Вы можете загрузить файл для проверки его безопасности с помощью VirusTotal API.
             </p>
 
+            <!-- Блок для отображения флэш-сообщений -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
             {% if message["method"] == "POST" %}
                 {% if message["file_size_error"] %}
                     <div class="alert alert-danger" role="alert">

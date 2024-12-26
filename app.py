@@ -30,7 +30,7 @@ def index():
 
 @app.route('/reports', methods=['get'])
 def get_report():
-    return render_template('reports,html')
+    return render_template('reports.html')
 
 
 #функция представления

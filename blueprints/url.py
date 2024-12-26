@@ -1,4 +1,3 @@
-from celery.bin.result import result
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from core.VirusTotalAPI import Check_url, Get_URL_Info
 
