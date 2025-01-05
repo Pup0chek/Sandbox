@@ -33,8 +33,9 @@ def restoreIpAddresses(s):
 
 
 def main():
-    s = '25525511135'
-    print(restoreIpAddresses(s))
+    # s = '25525511135'
+    # print(restoreIpAddresses(s))
+    print(2042986940%5)
 
 
 if __name__ == "__main__":

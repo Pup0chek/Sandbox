@@ -16,7 +16,6 @@ def Upload_file(file_path):
         files = {"file": file}  # Открытый файл передается напрямую
 
         response = requests.post(f"{API_URL}/files", files=files, headers=headers)
-
         if response.status_code == 200:
             # Извлекаем ID файла из JSON-ответа
 
