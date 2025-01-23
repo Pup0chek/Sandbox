@@ -18,7 +18,7 @@ def login():
         password = request.form.get("password")
         if username in users and users[username] == password:
             session["username"] = username
-            flash("Вы успешно вошли!", "success")
+            #flash("Вы успешно вошли!", "success")
             return redirect("/")
         else:
             flash("Неправильное имя пользователя или пароль.", "danger")
@@ -26,8 +26,10 @@ def login():
 
 @auth.route("/logout/")
 def logout():
-    session.pop("username", None)
-    flash("Вы вышли из системы.", "info")
+    # Удаляем все ключи из сессии
+    session.clear()  # Очистка всей сессии
+
+    #flash("Вы вышли из системы.", "info")
     return redirect(url_for("index"))
 
 @auth.route("/auth/")
@@ -60,7 +62,7 @@ def get_user_info(access_token):
 def callback():
     code = request.args.get("code")
     if not code:
-        flash("Не удалось получить код авторизации.", "danger")
+        #flash("Не удалось получить код авторизации.", "danger")
         return redirect(url_for("auth.login"))
 
     token_data = {
@@ -77,7 +79,7 @@ def callback():
             response.raise_for_status()
             token_response = response.json()
     except httpx.HTTPStatusError as e:
-        flash("Ошибка при получении токена.", "danger")
+        #flash("Ошибка при получении токена.", "danger")
         return redirect(url_for("auth.login"))
 
     session['access_token'] = token_response.get('access_token')

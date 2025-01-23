@@ -13,17 +13,12 @@
         </p>
         <hr class="my-4">
 
-        {% if session.get('user_info') %}
+        {% if user_info %}
         <div class="row mb-4">
             <div class="col-md-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Привет, {{ session['user_info']['real_name'] }}!</h5>
-                        {% if session['avatar_url'] %}
-                        <img src="{{ session['avatar_url'] }}" alt="User Avatar" class="rounded-circle" width="100" height="100">
-                        {% else %}
-                        <p>Аватарка не доступна</p>
-                        {% endif %}
+                        <h5 class="card-title">Привет, {{ user_info['real_name'] }}!</h5>
                     </div>
                 </div>
             </div>

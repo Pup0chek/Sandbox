@@ -54,34 +54,17 @@ app.config['SECRET_KEY'] = "123"
 
 @app.route('/')
 def index():
-    access_token = session.get('access_token')
-    refresh_token = session.get('refresh_token')
+    # Получаем данные о пользователе из сессии
+    user_info = session.get('user_info')  # Получаем информацию о пользователе
+    avatar_url = session.get('avatar_url')  # Получаем URL аватарки
 
-    if access_token:
-        # Если токен доступен, можно запросить информацию о пользователе
-        user_info = get_user_info(access_token)
-        return render_template('index.html', user_info=user_info)
+    if user_info:
+        # Если данные о пользователе есть в сессии, отображаем главную страницу с этими данными
+        return render_template('index.html', user_info=user_info, avatar_url=avatar_url)
 
-    flash("Вы не авторизованы!", "danger")
+    #flash("Вы не авторизованы!", "danger")
     return redirect(url_for('auth.login'))
 
-def get_user_info(access_token):
-    url = 'https://login.yandex.ru/info'
-    headers = {
-        'Authorization': f'OAuth {access_token}'  # OAuth-токен в заголовке
-    }
-    params = {
-        'format': 'json',  # Формат ответа (по умолчанию json)
-    }
-
-    # Отправляем GET-запрос
-    response = httpx.get(url, headers=headers, params=params)
-    print(response.json())
-
-    if response.status_code == 200:
-        return response.json()  # Возвращаем данные о пользователе
-    else:
-        return None
 
 @app.route('/reports', methods=['get'])
 def get_report():
