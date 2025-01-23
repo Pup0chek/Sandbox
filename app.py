@@ -7,6 +7,7 @@ from blueprints.auth import auth
 from blueprints.file import file
 from blueprints.url import url
 from flask import redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 #from aiokafka import AIOKafkaProducer
 # from dotenv import load_dotenv
 # load_dotenv()
@@ -22,6 +23,13 @@ app = Flask(__name__)
 #     'auto.offset.reset': 'earliest'
 # }
 # consumer = Consumer(consumer_config)
+# Конфигурация для подключения к MySQL через SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://your_user:your_password@localhost/user_db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Отключаем отслеживание изменений для экономии памяти
+
+
+# Инициализация SQLAlchemy
+db = SQLAlchemy(app)
 
 app.register_blueprint(auth, url_prefix='/login')
 app.register_blueprint(file, url_prefix='/file')
@@ -68,6 +76,9 @@ def index():
 
 @app.route('/reports', methods=['get'])
 def get_report():
+    if "access_token" not in session:
+        return redirect(url_for("auth.login"))
+
     return render_template('reports.html')
 
 

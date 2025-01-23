@@ -1,9 +1,16 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import httpx
 
+from app import db
+from db.models import User
+
 auth = Blueprint('auth', __name__, template_folder='templates')
 
 users = {"admin": "password123"}
+
+
+
+
 
 CLIENT_ID = "c360e751eb9e49c298f213d8e011fef3"
 CLIENT_SECRET = "51622c62188e4b9aabdd74743c610a82"
@@ -106,16 +113,20 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
-        if username not in users:
-            if password == confirm_password:
-                users[username] = password
+
+        if password == confirm_password:
+            user = User.query.filter_by(username=username).first()
+            if user:
+                flash("Пользователь с таким именем уже существует!", "danger")
+            else:
+                new_user = User(username=username, password=password)
+                db.session.add(new_user)
+                db.session.commit()
                 session["username"] = username
                 flash("Вы успешно зарегистрировались!", "success")
                 return redirect("/")
-            else:
-                flash("Пароли не совпадают!", "danger")
         else:
-            flash("Пользователь с таким именем уже существует!", "danger")
+            flash("Пароли не совпадают!", "danger")
 
     return render_template("register.html")
 
