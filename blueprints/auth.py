@@ -7,7 +7,7 @@ users = {"admin": "password123"}
 
 CLIENT_ID = "c360e751eb9e49c298f213d8e011fef3"
 CLIENT_SECRET = "51622c62188e4b9aabdd74743c610a82"
-REDIRECT_URI = "http://127.0.0.1:5000/login/callback"
+REDIRECT_URI = "http://127.0.0.1:5000/"
 YANDEX_AUTH_URL = "https://oauth.yandex.ru/authorize"
 YANDEX_TOKEN_URL = "https://oauth.yandex.ru/token"
 
