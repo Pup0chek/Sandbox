@@ -12,6 +12,24 @@
             Это приложение создано для изучения работы Flask и предоставляет следующие возможности:
         </p>
         <hr class="my-4">
+
+        {% if session.get('user_info') %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Привет, {{ session['user_info']['real_name'] }}!</h5>
+                        {% if session['avatar_url'] %}
+                        <img src="{{ session['avatar_url'] }}" alt="User Avatar" class="rounded-circle" width="100" height="100">
+                        {% else %}
+                        <p>Аватарка не доступна</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="row">
             <div class="col-md-4">
                 <div class="card shadow-sm">
@@ -50,4 +68,3 @@
     </div>
 </div>
 {% endblock %}
-

@@ -38,6 +38,24 @@ def authe():
     )
     return redirect(auth_url)  # Используем redirect вместо RedirectResponse
 
+def get_user_info(access_token):
+    url = 'https://login.yandex.ru/info'
+    headers = {
+        'Authorization': f'OAuth {access_token}'  # OAuth-токен в заголовке
+    }
+    params = {
+        'format': 'json',  # Формат ответа (по умолчанию json)
+    }
+
+    # Отправляем GET-запрос
+    response = httpx.get(url, headers=headers, params=params)
+    print(response.json())
+
+    if response.status_code == 200:
+        return response.json()  # Возвращаем данные о пользователе
+    else:
+        return None
+
 @auth.route("/callback/")
 def callback():
     code = request.args.get("code")
@@ -62,8 +80,23 @@ def callback():
         flash("Ошибка при получении токена.", "danger")
         return redirect(url_for("auth.login"))
 
+    session['access_token'] = token_response.get('access_token')
+
+    # Получаем информацию о пользователе
+    user_info = get_user_info(session['access_token'])
+
+    # Формируем URL для аватарки
+    avatar_url = f"https://avatars.yandex.net/get-yapic/{user_info['default_avatar_id']}/islands-small"
+
+    # Сохраняем данные в сессии
+    session['user_info'] = user_info
+    session['avatar_url'] = avatar_url
+
     flash("Вы успешно авторизовались через Яндекс!", "success")
-    return token_response  # Можно вернуть данные или перенаправить
+    return redirect(url_for("index"))
+
+
+
 
 @auth.route("/register/", methods=['POST', 'GET'])
 def register():
@@ -83,3 +116,4 @@ def register():
             flash("Пользователь с таким именем уже существует!", "danger")
 
     return render_template("register.html")
+
