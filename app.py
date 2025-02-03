@@ -1,15 +1,19 @@
-from flask import Flask, render_template
+import httpx
+from flask import Flask, render_template, request, session, flash
+#from urllib3 import request
+
 from wtf.forms import MessageForm
 from blueprints.auth import auth
 from blueprints.file import file
 from blueprints.url import url
 from flask import redirect, url_for
-from aiokafka import AIOKafkaProducer
+from flask_sqlalchemy import SQLAlchemy
+#from aiokafka import AIOKafkaProducer
 # from dotenv import load_dotenv
 # load_dotenv()
 
 
-from confluent_kafka import Consumer
+#from confluent_kafka import Consumer
 
 app = Flask(__name__)
 
@@ -19,6 +23,13 @@ app = Flask(__name__)
 #     'auto.offset.reset': 'earliest'
 # }
 # consumer = Consumer(consumer_config)
+# Конфигурация для подключения к MySQL через SQLAlchemy
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://your_user:your_password@localhost/user_db'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Отключаем отслеживание изменений для экономии памяти
+
+
+# # Инициализация SQLAlchemy
+# db = SQLAlchemy(app)
 
 app.register_blueprint(auth, url_prefix='/login')
 app.register_blueprint(file, url_prefix='/file')
@@ -51,11 +62,23 @@ app.config['SECRET_KEY'] = "123"
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Получаем данные о пользователе из сессии
+    user_info = session.get('user_info')  # Получаем информацию о пользователе
+    avatar_url = session.get('avatar_url')  # Получаем URL аватарки
+
+    if user_info:
+        # Если данные о пользователе есть в сессии, отображаем главную страницу с этими данными
+        return render_template('index.html', user_info=user_info, avatar_url=avatar_url)
+
+    #flash("Вы не авторизованы!", "danger")
+    return redirect(url_for('auth.login'))
 
 
 @app.route('/reports', methods=['get'])
 def get_report():
+    if "access_token" not in session:
+        return redirect(url_for("auth.login"))
+
     return render_template('reports.html')
 
 

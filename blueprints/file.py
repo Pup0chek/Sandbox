@@ -1,17 +1,14 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import base64
-from flask import Flask, request, render_template, redirect, url_for, session, flash
 from core.VirusTotalAPI import Upload_file, Get_File_Info, create_report
-from wtf.forms import MessageForm
 import os
-from blueprints.auth import auth
 
 file = Blueprint('file', __name__, template_folder='templates')
 
 MAX_FILE_SIZE = 1024 * 1024 + 1
 
 @file.route('/file_info/', methods=['get', 'post'])
-def file_info(path:str='C:\\Sandbox\\test.txt'):
+def file_info(path: str = 'Sandbox\\test.txt'):
     if request.method == 'POST':
         id = Upload_file(path).get("id")
         decoded = base64.b64decode(id).decode('utf-8')
@@ -20,15 +17,15 @@ def file_info(path:str='C:\\Sandbox\\test.txt'):
         message = [Get_File_Info(splited[0]), "True"]
         return render_template('file_info.html', message=message)
     elif request.method == 'GET':
-        message = [{'data':{'id': ' ', 'attributes': {'type_extension':' ', 'size':' ', 'reputation':' '}}}, "True"]
+        message = [{'data': {'id': ' ', 'attributes': {'type_extension': ' ', 'size': ' ', 'reputation': ' '}}}, "True"]
         return render_template('file_info.html', message=message)
 
 
 @file.route('/upload/', methods=['POST', 'GET'])
 def upload():
-    # Проверяем, авторизован ли пользователь
-    if "username" not in session:
-        flash("Вы должны авторизоваться или зарегистрироваться, чтобы загрузить файл.", "warning")
+    # Теперь проверяем только данные в сессии (например, наличие access_token)
+    if "access_token" not in session:
+
         return redirect(url_for("auth.login"))
 
     message = {"method": "GET"}
@@ -38,7 +35,7 @@ def upload():
 
         if not file or not file.filename:
             message["error"] = "Файл не выбран!"
-            flash("Файл не выбран!", "danger")
+            #flash("Файл не выбран!", "danger")
             return render_template("upload.html", message=message)
 
         # Проверяем размер файла

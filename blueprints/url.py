@@ -6,9 +6,9 @@ url = Blueprint('url', __name__, template_folder='templates')
 
 @url.route("/url_check/", methods=['post', "get"])
 def url_check():
-    if "username" not in session:
-        flash("Вы должны авторизоваться или зарегистрироваться, чтобы загрузить файл.", "warning")
+    if "access_token" not in session:
         return redirect(url_for("auth.login"))
+
     message = {
         "method": "GET",
         "body": " "

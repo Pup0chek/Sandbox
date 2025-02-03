@@ -12,6 +12,19 @@
             Это приложение создано для изучения работы Flask и предоставляет следующие возможности:
         </p>
         <hr class="my-4">
+
+        {% if user_info %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Привет, {{ user_info['real_name'] }}!</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="row">
             <div class="col-md-4">
                 <div class="card shadow-sm">
@@ -49,5 +62,51 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
+<!-- Мини-окошко с чатом -->
+<div class="chat-box" id="chatBox">
+    <div class="chat-header">
+        <span>Чат с ассистентом</span>
+        <button class="btn btn-sm btn-close" onclick="toggleChat()"></button>
+    </div>
+    <div class="chat-body" id="chatBody">
+        <div class="message assistant">Привет! Чем могу помочь?</div>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="Введите сообщение..." onkeypress="handleKeyPress(event)">
+        <button class="btn btn-primary btn-sm" onclick="sendMessage()">Отправить</button>
+    </div>
+</div>
+
+
+<!-- Скрипт для работы чата -->
+<script>
+    function toggleChat() {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.style.display = chatBox.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (message) {
+            const chatBody = document.getElementById('chatBody');
+            chatBody.innerHTML += `<div class="message user">${message}</div>`;
+            input.value = '';
+
+            // Здесь можно добавить логику отправки сообщения на сервер
+            // и получения ответа от ассистента
+            setTimeout(() => {
+                chatBody.innerHTML += `<div class="message assistant">Ваше сообщение: "${message}"</div>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }, 500);
+        }
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+</script>
+{% endblock %}
