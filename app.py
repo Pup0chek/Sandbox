@@ -1,12 +1,12 @@
-import httpx
 from flask import Flask, render_template, request, session, flash
 #from urllib3 import request
-
+from flask_socketio import SocketIO, send
 from wtf.forms import MessageForm
 from blueprints.auth import auth
 from blueprints.file import file
 from blueprints.url import url
 from flask import redirect, url_for
+from dsk.api import DeepSeekAPI
 from flask_sqlalchemy import SQLAlchemy
 #from aiokafka import AIOKafkaProducer
 # from dotenv import load_dotenv
@@ -16,6 +16,11 @@ from flask_sqlalchemy import SQLAlchemy
 #from confluent_kafka import Consumer
 
 app = Flask(__name__)
+active_connections = []
+socketio = SocketIO(app)
+
+
+
 
 # consumer_config = {
 #     'bootstrap.servers': 'localhost:9092',
@@ -58,7 +63,33 @@ app.config['SECRET_KEY'] = "123"
 #     finally:
 #         consumer.close()
 
+@socketio.on('message')
+def handle_message(data):
+    print(f"{data}")
+    client = DeepSeekAPI("gqKpptcY9AVUJzQRudgpxujpDN+0y2gi0roM3C1fQzRQhVLfqf6qGBqcq9JeiS3Y")
+    chat_id = client.create_chat_session()
+    response = ""
+    for chunk in client.chat_completion(chat_id, data):
+        if chunk['type'] == 'text':
+            response = chunk['content']
+            print(chunk['content'], end='', flush=True)
 
+    # bot_response = client.chat.completions.create(
+    #     model="deepseek-chat",
+    #     messages=[
+    #         {"role": "user", "content": data},
+    #     ],
+    #     stream=False
+    # )['choices'][0]['message']['content']
+    send(response, broadcast=True)
+    
+
+# def get_bot_response(user_message):
+#     response = client.chat_completion(
+#         model='deepseek-chat',
+#         messages=[{'role': 'user', 'content': user_message}]
+#     )
+#     return response['choices'][0]['message']['content']
 
 @app.route('/')
 def index():
@@ -99,5 +130,5 @@ def lol():
 
 
 app.run(debug=True)
-
+socketio.run(app, debug=True)
 
