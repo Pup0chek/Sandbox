@@ -69,11 +69,11 @@ def handle_message(data):
     client = DeepSeekAPI("gqKpptcY9AVUJzQRudgpxujpDN+0y2gi0roM3C1fQzRQhVLfqf6qGBqcq9JeiS3Y")
     chat_id = client.create_chat_session()
     response = ""
+    chat_id = "7a667f74-5160-4775-acb4-0a6820f67e05"
     for chunk in client.chat_completion(chat_id, data):
         if chunk['type'] == 'text':
-            response = chunk['content']
-            print(chunk['content'], end='', flush=True)
-
+            response += chunk['content']
+    print(response)
     # bot_response = client.chat.completions.create(
     #     model="deepseek-chat",
     #     messages=[
@@ -81,7 +81,7 @@ def handle_message(data):
     #     ],
     #     stream=False
     # )['choices'][0]['message']['content']
-    send(response, broadcast=True)
+    send(response)
     
 
 # def get_bot_response(user_message):
