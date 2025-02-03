@@ -62,12 +62,10 @@ app.config['SECRET_KEY'] = "123"
 
 @app.route('/')
 def index():
-    # Получаем данные о пользователе из сессии
-    user_info = session.get('user_info')  # Получаем информацию о пользователе
-    avatar_url = session.get('avatar_url')  # Получаем URL аватарки
+    user_info = session.get('user_info')
+    avatar_url = session.get('avatar_url')
 
     if user_info:
-        # Если данные о пользователе есть в сессии, отображаем главную страницу с этими данными
         return render_template('index.html', user_info=user_info, avatar_url=avatar_url)
 
     #flash("Вы не авторизованы!", "danger")
