@@ -61,26 +61,48 @@ app.config['SECRET_KEY'] = "123"
 #     finally:
 #         consumer.close()
 
-@socketio.on('message')
+# @socketio.on('message')
+# def handle_message(data):
+#     print(f"{data}")
+#     client = DeepSeekAPI("yE7PBYSJJznEL+Pk1OPFbRYCAiY5V74vrfabQFXBf3rGWKm+RRgNgto4KnK6qUoU")
+#     #chat_id = client.create_chat_session()
+#     response = ""
+#     chat_id = "f933b35d-8fae-4e9b-a0b6-4f1e85d7cbf1"
+#     for chunk in client.chat_completion(chat_id, data):
+#         if chunk['type'] == 'text':
+#             response += chunk['content']
+#     print(response)
+#     # bot_response = client.chat.completions.create(
+#     #     model="deepseek-chat",
+#     #     messages=[
+#     #         {"role": "user", "content": data},
+#     #     ],
+#     #     stream=False
+#     # )['choices'][0]['message']['content']
+#     send(response)
+from openai import OpenAI
+
+client = OpenAI(
+  base_url="https://openrouter.ai/api/v1",
+  api_key="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",
+)
+
+@socketio.on("message")
 def handle_message(data):
-    print(f"{data}")
-    client = DeepSeekAPI("yE7PBYSJJznEL+Pk1OPFbRYCAiY5V74vrfabQFXBf3rGWKm+RRgNgto4KnK6qUoU")
-    #chat_id = client.create_chat_session()
-    response = ""
-    chat_id = "f933b35d-8fae-4e9b-a0b6-4f1e85d7cbf1"
-    for chunk in client.chat_completion(chat_id, data):
-        if chunk['type'] == 'text':
-            response += chunk['content']
+    completion = client.chat.completions.create(
+        model="deepseek/deepseek-r1-distill-qwen-1.5b",
+        messages=[
+            {
+                "role": "user",
+                "content": data
+            }
+        ]
+    )
+    response = completion.choices[0].message.content
     print(response)
-    # bot_response = client.chat.completions.create(
-    #     model="deepseek-chat",
-    #     messages=[
-    #         {"role": "user", "content": data},
-    #     ],
-    #     stream=False
-    # )['choices'][0]['message']['content']
     send(response)
-    
+
+
 
 # def get_bot_response(user_message):
 #     response = client.chat_completion(
