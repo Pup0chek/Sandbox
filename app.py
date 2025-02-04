@@ -80,27 +80,45 @@ app.config['SECRET_KEY'] = "123"
 #     #     stream=False
 #     # )['choices'][0]['message']['content']
 #     send(response)
+
+key = "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"
 from openai import OpenAI
 
 client = OpenAI(
   base_url="https://openrouter.ai/api/v1",
-  api_key="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",
+  api_key="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",
 )
+
+
+# Сохранение истории чата (контекста)
+chat_history = []
 
 @socketio.on("message")
 def handle_message(data):
+    global chat_history
+
+    # Добавляем новое сообщение в историю
+    chat_history.append({"role": "user", "content": data})
+
+    # Ограничение длины истории (чтобы не перегружать контекст)
+    if len(chat_history) > 10:  # Оставляем только последние 10 сообщений
+        chat_history = chat_history[-10:]
+
+    # Запрос в OpenRouter API с контекстом
     completion = client.chat.completions.create(
         model="deepseek/deepseek-r1-distill-qwen-1.5b",
-        messages=[
-            {
-                "role": "user",
-                "content": data
-            }
-        ]
+        messages=chat_history  # Используем всю историю диалога
     )
+
+    # Получение ответа
     response = completion.choices[0].message.content
+
+    # Добавляем ответ бота в историю
+    chat_history.append({"role": "assistant", "content": response})
+
     print(response)
     send(response)
+
 
 
 
