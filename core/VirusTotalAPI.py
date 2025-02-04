@@ -52,5 +52,4 @@ def create_report(file_path, response_json):
         fi.close()
     return True
 
-#print(Upload_file("C:\\Users\\User\\Downloads\\Итоговое задание.pdf"))
 #print(Get_File_Info("d03cd054cf4c9f3ef860f5d7f2a0ebc4"))
