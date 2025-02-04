@@ -66,10 +66,10 @@ app.config['SECRET_KEY'] = "123"
 @socketio.on('message')
 def handle_message(data):
     print(f"{data}")
-    client = DeepSeekAPI("gqKpptcY9AVUJzQRudgpxujpDN+0y2gi0roM3C1fQzRQhVLfqf6qGBqcq9JeiS3Y")
-    chat_id = client.create_chat_session()
+    client = DeepSeekAPI("yE7PBYSJJznEL+Pk1OPFbRYCAiY5V74vrfabQFXBf3rGWKm+RRgNgto4KnK6qUoU")
+    #chat_id = client.create_chat_session()
     response = ""
-    chat_id = "7a667f74-5160-4775-acb4-0a6820f67e05"
+    chat_id = "f933b35d-8fae-4e9b-a0b6-4f1e85d7cbf1"
     for chunk in client.chat_completion(chat_id, data):
         if chunk['type'] == 'text':
             response += chunk['content']
