@@ -20,8 +20,6 @@ active_connections = []
 socketio = SocketIO(app)
 
 
-
-
 # consumer_config = {
 #     'bootstrap.servers': 'localhost:9092',
 #     'group.id': '1',

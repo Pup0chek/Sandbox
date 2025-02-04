@@ -46,27 +46,45 @@ class DeepSeekAPI:
             raise AuthenticationError("Invalid auth token provided")
         self.auth_token = auth_token
         self.pow_solver = DeepSeekPOW()
-        # Создаём scraper с настроенным User-Agent (имитируем Chrome 120)
-        self.scraper = cloudscraper.create_scraper(browser={'custom': 'chrome120'})
+
+        # Создаём scraper с подробным профилем браузера и длительной задержкой
+        self.scraper = cloudscraper.create_scraper(
+            browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True},
+            delay=60  # Задержка в 60 секунд (можно попробовать уменьшить, если 60 слишком много)
+        )
+
+        # Первый запрос для получения начальных cookies (например, __cf_bm, __cf_clearance и т.п.)
+        try:
+            initial_resp = self.scraper.get("https://chat.deepseek.com", timeout=10)
+            print("Initial cookies:", self.scraper.cookies)
+        except Exception as e:
+            print("Ошибка при первичном запросе для получения cookies:", e)
+
+        # Дополнительный GET-запрос для «прогрева» (если требуется)
+        try:
+            self.scraper.get("https://chat.deepseek.com", timeout=60)
+        except Exception as e:
+            print("Предварительный запрос для получения cookies не удался:", e)
 
     def _get_headers(self, pow_response: Optional[str] = None) -> Dict[str, str]:
         headers = {
             'accept': '*/*',
-            'accept-language': 'en,fr-FR;q=0.9,fr;q=0.8,es-ES;q=0.7,es;q=0.6,en-US;q=0.5,am;q=0.4,de;q=0.3',
+            'accept-language': 'en-US,en;q=0.9',
             'authorization': f'Bearer {self.auth_token}',
             'content-type': 'application/json',
             'origin': 'https://chat.deepseek.com',
             'referer': 'https://chat.deepseek.com/',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'sec-ch-ua': '"Chromium";v="120", "Google Chrome";v="120", "Not.A/Brand";v="8"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
             'x-app-version': '20241129.1',
             'x-client-locale': 'en_US',
             'x-client-platform': 'web',
             'x-client-version': '1.0.0-always',
         }
-
         if pow_response:
             headers['x-ds-pow-response'] = pow_response
-
         return headers
 
     def _make_request(self, method: str, endpoint: str, json_data: Dict[str, Any], pow_required: bool = False) -> Any:
