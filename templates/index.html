@@ -65,12 +65,12 @@
 
 <!-- Мини-окошко с чатом -->
 <div class="chat-box" id="chatBox">
-    <div class="chat-header">
+    <div class="chat-header" id="chatHeader">
         <span>Чат с ассистентом</span>
-        <button class="btn btn-sm btn-close" onclick="toggleChat()"></button>
+        <button class="btn btn-sm btn-close" onclick="toggleChat()">✖</button>
     </div>
     <div class="chat-body" id="chatBody">
-        <div class="message assistant">Hi, welcome to chat with assistant!</div>
+        <div class="message assistant">Hi, welcome to chat with assistant! Text smth in English please😊</div>
     </div>
     <div class="chat-footer">
         <input type="text" id="chatInput" placeholder="Введите сообщение..." onkeypress="handleKeyPress(event)">
@@ -78,16 +78,18 @@
     </div>
 </div>
 
-
-<!-- Скрипт для работы чата -->
 <!-- Скрипт для работы чата через SocketIO -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
 <script>
     const socket = io();
+    const chatBox = document.getElementById("chatBox");
+    const chatHeader = document.getElementById("chatHeader");
+
+    let isDragging = false;
+    let startX, startY, startWidth, startHeight;
 
     function toggleChat() {
-        const chatBox = document.getElementById('chatBox');
-        chatBox.style.display = chatBox.style.display === 'none' ? 'flex' : 'none';
+        chatBox.style.display = chatBox.style.display === "none" ? "flex" : "none";
     }
 
     function sendMessage() {
@@ -108,18 +110,32 @@
             sendMessage();
         }
     }
-    socket.on('connect', function() {
-    console.log('Подключено к серверу!');
-    });
 
-    socket.on('disconnect', function() {
-        console.log('Отключено от сервера!');
-    });
     socket.on('message', function(data) {
         const chatBody = document.getElementById('chatBody');
         chatBody.innerHTML += `<div class="message assistant">${data}</div>`;
         chatBody.scrollTop = chatBody.scrollHeight;
     });
+
+    // Перетаскивание чата
+    chatHeader.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        startX = e.clientX - chatBox.offsetLeft;
+        startY = e.clientY - chatBox.offsetTop;
+
+        document.addEventListener("mousemove", dragChat);
+        document.addEventListener("mouseup", () => {
+            isDragging = false;
+            document.removeEventListener("mousemove", dragChat);
+        });
+    });
+
+    function dragChat(e) {
+        if (isDragging) {
+            chatBox.style.left = e.clientX - startX + "px";
+            chatBox.style.top = e.clientY - startY + "px";
+        }
+    }
 </script>
 
 {% endblock %}

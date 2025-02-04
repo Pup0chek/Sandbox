@@ -81,14 +81,12 @@ app.config['SECRET_KEY'] = "123"
 #     # )['choices'][0]['message']['content']
 #     send(response)
 
-key = "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"
 from openai import OpenAI
 
 client = OpenAI(
   base_url="https://openrouter.ai/api/v1",
-  api_key="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",
+  api_key="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",
 )
-
 
 # Сохранение истории чата (контекста)
 chat_history = []
