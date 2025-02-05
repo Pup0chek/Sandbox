@@ -6,8 +6,8 @@ from blueprints.auth import auth
 from blueprints.file import file
 from blueprints.url import url
 from flask import redirect, url_for
-from dsk.api import DeepSeekAPI
-from flask_sqlalchemy import SQLAlchemy
+#from dsk.api import DeepSeekAPI
+#from flask_sqlalchemy import SQLAlchemy
 #from aiokafka import AIOKafkaProducer
 # from dotenv import load_dotenv
 # load_dotenv()
@@ -85,7 +85,7 @@ from openai import OpenAI
 
 client = OpenAI(
   base_url="https://openrouter.ai/api/v1",
-  api_key="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",
+  api_key="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",
 )
 
 # Сохранение истории чата (контекста)
