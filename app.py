@@ -1,19 +1,18 @@
-from flask import Flask, render_template, request, session, flash
-#from urllib3 import request
+from flask import Flask, render_template, session
 from flask_socketio import SocketIO, send
 from wtf.forms import MessageForm
 from blueprints.auth import auth
 from blueprints.file import file
 from blueprints.url import url
 from flask import redirect, url_for
-#from dsk.api import DeepSeekAPI
-#from flask_sqlalchemy import SQLAlchemy
-#from aiokafka import AIOKafkaProducer
+# from dsk.api import DeepSeekAPI
+# from flask_sqlalchemy import SQLAlchemy
+# from aiokafka import AIOKafkaProducer
 # from dotenv import load_dotenv
 # load_dotenv()
 
 
-#from confluent_kafka import Consumer
+# from confluent_kafka import Consumer
 
 app = Flask(__name__)
 active_connections = []
@@ -41,7 +40,7 @@ app.register_blueprint(url, url_prefix= '/url')
 app.config['SECRET_KEY'] = "123"
 
 
-#
+
 # @app.route('/consume/<topic>', methods=['GET'])
 # def consume_messages(topic):
 #     consumer.subscribe([topic])
@@ -118,15 +117,6 @@ def handle_message(data):
     send(response)
 
 
-
-
-# def get_bot_response(user_message):
-#     response = client.chat_completion(
-#         model='deepseek-chat',
-#         messages=[{'role': 'user', 'content': user_message}]
-#     )
-#     return response['choices'][0]['message']['content']
-
 @app.route('/')
 def index():
     user_info = session.get('user_info')
@@ -135,7 +125,7 @@ def index():
     if user_info:
         return render_template('index.html', user_info=user_info, avatar_url=avatar_url)
 
-    #flash("Вы не авторизованы!", "danger")
+    # flash("Вы не авторизованы!", "danger")
     return redirect(url_for('auth.login'))
 
 
@@ -146,8 +136,6 @@ def get_report():
 
     return render_template('reports.html')
 
-
-#функция представления
 @app.route('/lol/', methods=["GET", "POST"])
 def lol():
     form = MessageForm()

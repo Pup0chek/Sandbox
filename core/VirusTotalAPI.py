@@ -1,7 +1,5 @@
-import os
-
 import requests
-import os
+
 
 # API_KEY = os.getenv("API_KEY")
 # API_URL = os.getenv('API_URL')
@@ -52,4 +50,4 @@ def create_report(file_path, response_json):
         fi.close()
     return True
 
-#print(Get_File_Info("d03cd054cf4c9f3ef860f5d7f2a0ebc4"))
+# print(Get_File_Info("d03cd054cf4c9f3ef860f5d7f2a0ebc4"))

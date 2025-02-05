@@ -22,7 +22,7 @@ def login():
         password = request.form.get("password")
         if username in users and users[username] == password:
             session["username"] = username
-            #flash("Вы успешно вошли!", "success")
+            # flash("Вы успешно вошли!", "success")
             return redirect("/")
         else:
             flash("Неправильное имя пользователя или пароль.", "danger")
@@ -33,7 +33,7 @@ def logout():
     # Удаляем все ключи из сессии
     session.clear()  # Очистка всей сессии
 
-    #flash("Вы вышли из системы.", "info")
+    # flash("Вы вышли из системы.", "info")
     return redirect(url_for("index"))
 
 @auth.route("/auth/")
@@ -66,7 +66,7 @@ def get_user_info(access_token):
 def callback():
     code = request.args.get("code")
     if not code:
-        #flash("Не удалось получить код авторизации.", "danger")
+        # flash("Не удалось получить код авторизации.", "danger")
         return redirect(url_for("auth.login"))
 
     token_data = {
@@ -83,7 +83,7 @@ def callback():
             response.raise_for_status()
             token_response = response.json()
     except httpx.HTTPStatusError as e:
-        #flash("Ошибка при получении токена.", "danger")
+        # flash("Ошибка при получении токена.", "danger")
         return redirect(url_for("auth.login"))
 
     session['access_token'] = token_response.get('access_token')
@@ -104,26 +104,26 @@ def callback():
 
 
 
-@auth.route("/register/", methods=['POST', 'GET'])
-def register():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
-
-        if password == confirm_password:
-            user = User.query.filter_by(username=username).first()
-            if user:
-                flash("Пользователь с таким именем уже существует!", "danger")
-            else:
-                new_user = User(username=username, password=password)
-                db.session.add(new_user)
-                db.session.commit()
-                session["username"] = username
-                flash("Вы успешно зарегистрировались!", "success")
-                return redirect("/")
-        else:
-            flash("Пароли не совпадают!", "danger")
-
-    return render_template("register.html")
+# @auth.route("/register/", methods=['POST', 'GET'])
+# def register():
+#     if request.method == "POST":
+#         username = request.form.get("username")
+#         password = request.form.get("password")
+#         confirm_password = request.form.get("confirm_password")
+#
+#         if password == confirm_password:
+#             user = User.query.filter_by(username=username).first()
+#             if user:
+#                 flash("Пользователь с таким именем уже существует!", "danger")
+#             else:
+#                 new_user = User(username=username, password=password)
+#                 db.session.add(new_user)
+#                 db.session.commit()
+#                 session["username"] = username
+#                 flash("Вы успешно зарегистрировались!", "success")
+#                 return redirect("/")
+#         else:
+#             flash("Пароли не совпадают!", "danger")
+#
+#     return render_template("register.html")
 

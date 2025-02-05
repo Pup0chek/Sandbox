@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import base64
-from core.VirusTotalAPI import Upload_file, Get_File_Info, create_report
-import os
+from core.VirusTotalAPI import Upload_file, Get_File_Info
+
 
 file = Blueprint('file', __name__, template_folder='templates')
 
@@ -35,7 +35,7 @@ def upload():
 
         if not file or not file.filename:
             message["error"] = "Файл не выбран!"
-            #flash("Файл не выбран!", "danger")
+            # flash("Файл не выбран!", "danger")
             return render_template("upload.html", message=message)
 
         # Проверяем размер файла

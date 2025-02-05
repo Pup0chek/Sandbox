@@ -1,8 +1,7 @@
 from typing import Optional, Dict, Any, Generator, Literal
 import json
 import cloudscraper
-import base64
-import os
+
 
 from .pow import DeepSeekPOW
 
