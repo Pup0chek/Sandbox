@@ -29,7 +29,7 @@ jobs:
     - name: Lint with flake8
       run: |
         pip install flake8
-        flake8 my_module
+        flake8 Sandbox
 
     - name: Run tests with pytest
       run: |
