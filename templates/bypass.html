@@ -20,7 +20,28 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg">Отправить</button>
             </form>
-            <p>{{ message['body'] }}</p>
+
+            {% if message %}
+            <div class="mt-5">
+                <h2 class="text-primary">Результаты обхода</h2>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Статус код</th>
+                            <th>Метод</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in message['body'] %}
+                        <tr>
+                            <td>{{ result[0]}}</td>
+                            <td>{{ result[1]}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

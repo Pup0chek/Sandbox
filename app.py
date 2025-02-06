@@ -10,7 +10,7 @@ from openai import OpenAI
 # Переместите инициализацию клиентского API в начало
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="your_api_key"
+    api_key="api_key"
 )
 
 app = Flask(__name__)
