@@ -4,6 +4,7 @@ from wtf.forms import MessageForm
 from blueprints.auth import auth
 from blueprints.file import file
 from blueprints.url import url
+from blueprints.bypass import bypass
 from openai import OpenAI
 
 # Переместите инициализацию клиентского API в начало
@@ -19,6 +20,7 @@ socketio = SocketIO(app)
 app.register_blueprint(auth, url_prefix='/login')
 app.register_blueprint(file, url_prefix='/file')
 app.register_blueprint(url, url_prefix='/url')
+app.register_blueprint(bypass, url_prefix='/bypass')
 app.config['SECRET_KEY'] = "123"
 
 chat_history = []  # Сохранение истории чатов
