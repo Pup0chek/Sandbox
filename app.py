@@ -84,7 +84,7 @@ from openai import OpenAI
 
 client = OpenAI(
   base_url="https://openrouter.ai/api/v1",
-  api_key="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",
+  api_key="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",
 )
 
 # Сохранение истории чата (контекста)
