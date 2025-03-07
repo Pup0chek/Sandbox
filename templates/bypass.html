@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Обход 403
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <div class="card-body">
+            <h1 class="card-title text-primary">Ввести URL для обхода</h1>
+            <p class="card-text">
+                Вы можете ввести URL для попытки обхода блокировки в случае ошибки "403 forbidden".
+            </p>
+
+            <form action="/bypass/url_bypass/" method="POST" enctype="multipart/form-data" class="mt-4">
+                <div class="mb-3">
+                    <label for="url" class="form-label">Введите URL для проверки:</label>
+                    <input type="text" class="form-control" id="url" name="url" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Отправить</button>
+            </form>
+
+            {% if message %}
+            <div class="mt-5">
+                <h2 class="text-primary">Результаты обхода</h2>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Статус код</th>
+                            <th>Метод</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in message['body'] %}
+                        <tr>
+                            <td>{{ result[0]}}</td>
+                            <td>{{ result[1]}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
