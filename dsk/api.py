@@ -1,31 +1,36 @@
-from typing import Optional, Dict, Any, Generator, Literal
 import json
-import cloudscraper
+from collections.abc import Generator
+from typing import Any, Dict, Literal, Optional
 
+import cloudscraper
 
 from .pow import DeepSeekPOW
 
-ThinkingMode = Literal['detailed', 'simple', 'disabled']
-SearchMode = Literal['enabled', 'disabled']
+ThinkingMode = Literal["detailed", "simple", "disabled"]
+SearchMode = Literal["enabled", "disabled"]
 
 
 class DeepSeekError(Exception):
     """Base exception for all DeepSeek API errors"""
+
     pass
 
 
 class AuthenticationError(DeepSeekError):
     """Raised when authentication fails"""
+
     pass
 
 
 class RateLimitError(DeepSeekError):
     """Raised when API rate limit is exceeded"""
+
     pass
 
 
 class NetworkError(DeepSeekError):
     """Raised when network communication fails"""
+
     pass
 
 
@@ -48,13 +53,13 @@ class DeepSeekAPI:
 
         # Создаём scraper с подробным профилем браузера и длительной задержкой
         self.scraper = cloudscraper.create_scraper(
-            browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True},
-            delay=60  # Задержка в 60 секунд (можно попробовать уменьшить, если 60 слишком много)
+            browser={"browser": "chrome", "platform": "windows", "desktop": True},
+            delay=60,  # Задержка в 60 секунд (можно попробовать уменьшить, если 60 слишком много)
         )
 
         # Первый запрос для получения начальных cookies (например, __cf_bm, __cf_clearance и т.п.)
         try:
-            initial_resp = self.scraper.get("https://chat.deepseek.com", timeout=10)
+            self.scraper.get("https://chat.deepseek.com", timeout=10)
             print("Initial cookies:", self.scraper.cookies)
         except Exception as e:
             print("Ошибка при первичном запросе для получения cookies:", e)
@@ -67,23 +72,23 @@ class DeepSeekAPI:
 
     def _get_headers(self, pow_response: Optional[str] = None) -> Dict[str, str]:
         headers = {
-            'accept': '*/*',
-            'accept-language': 'en-US,en;q=0.9',
-            'authorization': f'Bearer {self.auth_token}',
-            'content-type': 'application/json',
-            'origin': 'https://chat.deepseek.com',
-            'referer': 'https://chat.deepseek.com/',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'sec-ch-ua': '"Chromium";v="120", "Google Chrome";v="120", "Not.A/Brand";v="8"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'x-app-version': '20241129.1',
-            'x-client-locale': 'en_US',
-            'x-client-platform': 'web',
-            'x-client-version': '1.0.0-always',
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9",
+            "authorization": f"Bearer {self.auth_token}",
+            "content-type": "application/json",
+            "origin": "https://chat.deepseek.com",
+            "referer": "https://chat.deepseek.com/",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "sec-ch-ua": '"Chromium";v="120", "Google Chrome";v="120", "Not.A/Brand";v="8"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Windows"',
+            "x-app-version": "20241129.1",
+            "x-client-locale": "en_US",
+            "x-client-platform": "web",
+            "x-client-version": "1.0.0-always",
         }
         if pow_response:
-            headers['x-ds-pow-response'] = pow_response
+            headers["x-ds-pow-response"] = pow_response
         return headers
 
     def _make_request(self, method: str, endpoint: str, json_data: Dict[str, Any], pow_required: bool = False) -> Any:
@@ -96,13 +101,7 @@ class DeepSeekAPI:
                 pow_response = self.pow_solver.solve_challenge(challenge)
                 headers = self._get_headers(pow_response)
 
-            response = self.scraper.request(
-                method=method,
-                url=url,
-                headers=headers,
-                json=json_data,
-                timeout=None
-            )
+            response = self.scraper.request(method=method, url=url, headers=headers, json=json_data, timeout=None)
 
             if response.status_code == 401:
                 raise AuthenticationError("Invalid or expired authentication token")
@@ -121,32 +120,28 @@ class DeepSeekAPI:
     def _get_pow_challenge(self) -> Dict[str, Any]:
         try:
             response = self._make_request(
-                'POST',
-                '/chat/create_pow_challenge',
-                {'target_path': '/api/v0/chat/completion'}
+                "POST", "/chat/create_pow_challenge", {"target_path": "/api/v0/chat/completion"}
             )
-            return response['data']['biz_data']['challenge']
+            return response["data"]["biz_data"]["challenge"]
         except KeyError:
             raise APIError("Invalid challenge response format from server")
 
     def create_chat_session(self) -> str:
         """Creates a new chat session and returns the session ID"""
         try:
-            response = self._make_request(
-                'POST',
-                '/chat_session/create',
-                {'character_id': None}
-            )
-            return response['data']['biz_data']['id']
+            response = self._make_request("POST", "/chat_session/create", {"character_id": None})
+            return response["data"]["biz_data"]["id"]
         except KeyError:
             raise APIError("Invalid session creation response format from server")
 
-    def chat_completion(self,
-                        chat_session_id: str,
-                        prompt: str,
-                        parent_message_id: Optional[str] = None,
-                        thinking_enabled: bool = True,
-                        search_enabled: bool = False) -> Generator[Dict[str, Any], None, None]:
+    def chat_completion(
+        self,
+        chat_session_id: str,
+        prompt: str,
+        parent_message_id: Optional[str] = None,
+        thinking_enabled: bool = True,
+        search_enabled: bool = False,
+    ) -> Generator[Dict[str, Any], None, None]:
         """
         Send a message and get streaming response
 
@@ -172,12 +167,12 @@ class DeepSeekAPI:
             raise ValueError("Chat session ID must be a non-empty string")
 
         json_data = {
-            'chat_session_id': chat_session_id,
-            'parent_message_id': parent_message_id,
-            'prompt': prompt,
-            'ref_file_ids': [],
-            'thinking_enabled': thinking_enabled,
-            'search_enabled': search_enabled,
+            "chat_session_id": chat_session_id,
+            "parent_message_id": parent_message_id,
+            "prompt": prompt,
+            "ref_file_ids": [],
+            "thinking_enabled": thinking_enabled,
+            "search_enabled": search_enabled,
         }
 
         try:
@@ -187,15 +182,11 @@ class DeepSeekAPI:
             headers = self._get_headers(pow_response=pow_response)
 
             response = self.scraper.post(
-                f"{self.BASE_URL}/chat/completion",
-                headers=headers,
-                json=json_data,
-                stream=True,
-                timeout=None
+                f"{self.BASE_URL}/chat/completion", headers=headers, json=json_data, stream=True, timeout=None
             )
 
             if response.status_code != 200:
-                error_text = next(response.iter_lines(), b'').decode('utf-8', 'ignore')
+                error_text = next(response.iter_lines(), b"").decode("utf-8", "ignore")
                 if response.status_code == 401:
                     raise AuthenticationError("Invalid or expired authentication token")
                 elif response.status_code == 429:
@@ -208,7 +199,7 @@ class DeepSeekAPI:
                     parsed = self._parse_chunk(chunk)
                     if parsed:
                         yield parsed
-                        if parsed.get('finish_reason') == 'stop':
+                        if parsed.get("finish_reason") == "stop":
                             break
                 except Exception as e:
                     raise APIError(f"Error parsing response chunk: {str(e)}")
@@ -222,18 +213,18 @@ class DeepSeekAPI:
             return None
 
         try:
-            if chunk.startswith(b'data: '):
+            if chunk.startswith(b"data: "):
                 data = json.loads(chunk[6:])
 
-                if 'choices' in data and data['choices']:
-                    choice = data['choices'][0]
-                    if 'delta' in choice:
-                        delta = choice['delta']
+                if "choices" in data and data["choices"]:
+                    choice = data["choices"][0]
+                    if "delta" in choice:
+                        delta = choice["delta"]
 
                         return {
-                            'content': delta.get('content', ''),
-                            'type': delta.get('type', ''),
-                            'finish_reason': choice.get('finish_reason')
+                            "content": delta.get("content", ""),
+                            "type": delta.get("type", ""),
+                            "finish_reason": choice.get("finish_reason"),
                         }
         except json.JSONDecodeError:
             raise APIError("Invalid JSON in response chunk")

@@ -1,32 +1,34 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import base64
-from core.VirusTotalAPI import Upload_file, Get_File_Info
 
-file = Blueprint('file', __name__, template_folder='templates')
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+
+from core.VirusTotalAPI import Get_File_Info, Upload_file
+
+file = Blueprint("file", __name__, template_folder="templates")
 
 MAX_FILE_SIZE = 1024 * 1024 + 1  # Limit for file size (1 MB + 1 byte)
 
 
-@file.route('/file_info/', methods=['GET', 'POST'])
-def file_info(path: str = 'Sandbox\\test.txt'):
-    if request.method == 'POST':
+@file.route("/file_info/", methods=["GET", "POST"])
+def file_info(path: str = "Sandbox\\test.txt"):
+    if request.method == "POST":
         # Get the file upload ID and decode it
         id = Upload_file(path).get("id")
-        decoded = base64.b64decode(id).decode('utf-8')
+        decoded = base64.b64decode(id).decode("utf-8")
         print(decoded)
         splited = decoded.split(":")
 
         # Retrieve file information
         message = [Get_File_Info(splited[0]), "True"]
-        return render_template('file_info.html', message=message)
+        return render_template("file_info.html", message=message)
 
     # If it's a GET request, provide an empty file info as a template
-    elif request.method == 'GET':
-        message = [{'data': {'id': ' ', 'attributes': {'type_extension': ' ', 'size': ' ', 'reputation': ' '}}}, "True"]
-        return render_template('file_info.html', message=message)
+    elif request.method == "GET":
+        message = [{"data": {"id": " ", "attributes": {"type_extension": " ", "size": " ", "reputation": " "}}}, "True"]
+        return render_template("file_info.html", message=message)
 
 
-@file.route('/upload/', methods=['POST', 'GET'])
+@file.route("/upload/", methods=["POST", "GET"])
 def upload():
     # Check if the user is logged in (access_token must be present in session)
     if "access_token" not in session:
@@ -52,7 +54,7 @@ def upload():
 
         # Save the file temporarily
         temp_path = f"tmp\\{file.filename}"
-        with open(temp_path, 'wb') as temp_file:
+        with open(temp_path, "wb") as temp_file:
             temp_file.write(file_bytes)
 
         # Upload the file to the API
@@ -60,13 +62,13 @@ def upload():
             api_response = Upload_file(temp_path)
             if api_response.get("message") == "success":
                 id = api_response.get("id")
-                decoded = base64.b64decode(id).decode('utf-8')
+                decoded = base64.b64decode(id).decode("utf-8")
                 splited = decoded.split(":")
 
                 # Retrieve file info
                 message = [Get_File_Info(splited[0]), "True"]
                 flash("Файл успешно загружен!", "success")
-                return render_template('file_info.html', message=message)
+                return render_template("file_info.html", message=message)
             else:
                 message["error"] = "Ошибка загрузки на API"
                 flash("Ошибка загрузки на API.", "danger")

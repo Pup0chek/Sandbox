@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+line-length = 120 
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+
+ignore = ["E501", "B904", "E402"]  
+fixable = ["ALL"]          
+
+[tool.ruff.lint.isort]     
+known-first-party = ["myapp"]
